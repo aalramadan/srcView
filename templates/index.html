@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run srcML</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>srcView</h1>
+        <p>Enter the file path and GitHub repository URL below.</p>
+
+        <!-- Form for file path and GitHub URL -->
+        <form method="POST">
+            <div>
+                <label for="filePath" class="file-label">File Path:</label>
+                <input type="text" id="filePath" name="filePath" placeholder="Enter file path" required>
+            </div>
+            <div>
+                <label for="githubLink" class="file-label">GitHub URL:</label>
+                <input type="url" id="githubLink" name="githubLink" placeholder="Enter GitHub repository URL" required>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Display Results -->
+        <p id="result">{{ result }}</p>
+    </div>
+</body>
+</html>
