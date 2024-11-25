@@ -1,4 +1,5 @@
 import sqlite3
+import os
 
 def dict_factory(cursor, row):
     fields = [column[0] for column in cursor.description]
@@ -7,6 +8,8 @@ def dict_factory(cursor, row):
 try:
     connection = sqlite3.connect("data/srcml.db3",check_same_thread=False)
 except sqlite3.OperationalError:
+    if not os.path.exists('data'):
+        os.makedirs('data')
     file = open("data/srcml.db3",'wb')
     file.close()
 finally:
