@@ -10,6 +10,8 @@ from srcml_analysis import *
 app = Flask(__name__)
 socket_io = SocketIO(app)
 
+srcml_database._create_database()
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -37,6 +39,7 @@ def process_github_link(github_link):
     else:
         socket_io.emit("update",{'message':'Error downloading the file.'})
 
+
     socket_io.emit("update",{'message':'Converting to srcML...'})
 
     repo_name = "/".join(github_link.split("/")[-2:])
@@ -45,6 +48,8 @@ def process_github_link(github_link):
     if status:
         socket_io.emit("update",{'message':'Converted!'})
 
+
+    status = add_srcml_to_database(repo_name)
 
 
 

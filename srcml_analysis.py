@@ -2,7 +2,8 @@ import requests
 import os
 import subprocess
 
-#import pylibsrcml
+import pylibsrcml
+import srcml_database
 
 """
 To download from GitHub:
@@ -42,4 +43,17 @@ def convert_to_srcml(repo_name,get_position=False):
         return True
     else:
         return False
+
+def add_srcml_to_database(repo_name):
+    srcml_database.add_repo(repo_name)
+
+    srcml = pylibsrcml.srcMLArchiveRead("data/"+repo_name+"/code_pos.xml")
+
+    # Populate Files
+    for unit in srcml:
+        name = unit.get_filename()
+        language = unit.get_language()
+        srcml_database.add_file(name,language,repo_name)
+
+    srcml_database.commit()
 
