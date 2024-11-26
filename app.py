@@ -44,12 +44,22 @@ def process_github_link(github_link):
 
     repo_name = "/".join(github_link.split("/")[-2:])
     status = convert_to_srcml(repo_name) and convert_to_srcml(repo_name,True)
-
     if status:
         socket_io.emit("update",{'message':'Converted!'})
 
-
     status = add_srcml_to_database(repo_name)
+
+    socket_io.emit("update",{'message':'Running stereocode...'})
+    status = run_stereocode(repo_name)
+    if status:
+        socket_io.emit("update",{'message':'Stereotyped!'})
+
+    socket_io.emit("update",{'message':'Collecting names...'})
+    status = run_namecollector(repo_name)
+    if status:
+        socket_io.emit("update",{'message':'Collected!'})
+
+    status = add_names_to_database(repo_name)
 
 
 

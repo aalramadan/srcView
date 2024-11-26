@@ -57,3 +57,36 @@ def add_srcml_to_database(repo_name):
 
     srcml_database.commit()
 
+def run_stereocode(repo_name):
+    command = ["./programs/stereocode", "data/"+repo_name+"/code_pos.xml","-o","data/"+repo_name+"/code_stereotype.xml"]
+
+    result = subprocess.run(command)
+
+    if result.returncode == 0:
+        return True
+    else:
+        return False
+
+def run_namecollector(repo_name):
+    command = ["./programs/nameCollector","-i","data/"+repo_name+"/code_stereotype.xml","-o","data/"+repo_name+"/code_names.csv","--csv"]
+
+    result = subprocess.run(command)
+
+    if result.returncode == 0:
+        return True
+    else:
+        return False
+
+def add_names_to_database(repo_name):
+    with open("data/"+repo_name+"/code_names.csv") as file:
+        for line in file.readlines():
+            vals = line.split(",")
+            name = vals[0]
+            type = vals[1]
+            category = vals[2]
+            file = vals[3]
+            pos = vals[4]
+            srcml_database.add_identifier(name,type,category,srcml_database.get_file_id_from_name_and_repo(file,srcml_database.get_repo_id_from_name(repo_name)),pos.split(":")[0],pos.split(":")[1])
+    srcml_database.commit()
+
+
