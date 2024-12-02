@@ -37,18 +37,6 @@ def _create_database():
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS "stereotype" (
-            tag TEXT NOT NULL,
-            file_id INTEGER,
-            stereotype TEXT NOT NULL,
-            line INTEGER NOT NULL,
-            column INTEGER NOT NULL,
-            FOREIGN KEY(file_id) REFERENCES file(id),
-            PRIMARY KEY(tag,file_id,line,column)
-        );
-    """)
-
-    cursor.execute("""
         CREATE TABLE IF NOT EXISTS "identifier" (
             name TEXT NOT NULL,
             type TEXT,
@@ -56,8 +44,37 @@ def _create_database():
             file_id INTEGER,
             line INTEGER NOT NULL,
             column INTEGER NOT NULL,
+            stereotype TEXT,
             FOREIGN KEY(file_id) REFERENCES file(id),
             PRIMARY KEY(name,category,file_id,line,column)
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS "tag_count" (
+            tag TEXT NOT NULL,
+            file_id INTEGER,
+            count INTEGER NOT NULL,
+            FOREIGN KEY(file_id) REFERENCES file(id),
+            PRIMARY KEY(tag,file_id)
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS "query_run" (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT NOT NULL,
+            query_type TEXT NOT NULL
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS "query_run_result" (
+            file_id INTEGER,
+            query_id INTEGER,
+            FOREIGN KEY(file_id) REFERENCES file(id),
+            FOREIGN KEY(query_id) REFERENCES query_run(id),
+            PRIMARY KEY(file_id,query_id)
         );
     """)
 
@@ -88,22 +105,29 @@ def add_file(name,language,repo_name):
         VALUES (?,?,?);
     """, (name,language,get_repo_id_from_name(repo_name)))
 
-def get_file_id_from_name_and_repo(repo_id,filename):
+def get_file_id_from_name_and_repo(filename,repo_id):
     cursor = connection.cursor()
     cursor.execute("""
         SELECT id
         FROM file
         WHERE name=? AND repo_id=?
     """, (filename,repo_id))
-    print(repo_id,filename)
     return cursor.fetchone()["id"]
 
-def add_identifier(name,type,category,file_id,line,column):
+def add_identifier(name,type,category,file_id,line,column,stereotype):
     cursor = connection.cursor()
     cursor.execute("""
-        INSERT INTO identifier (name,type,category,file_id,line,column)
-        VALUES (?,?,?,?,?,?)
-    """,())
+        INSERT INTO identifier (name,type,category,file_id,line,column,stereotype)
+        VALUES (?,?,?,?,?,?,?)
+    """,(name,type,category,file_id,line,column,stereotype))
+
+
+def add_tag_count(tag,file_id,count):
+    cursor = connection.cursor()
+    cursor.execute("""
+        INSERT INTO tag_count (tag,file_id,count)
+        VALUES (?,?,?)
+    """,(tag,file_id,count))
 
 
 

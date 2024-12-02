@@ -1,11 +1,23 @@
-from flask import Flask, render_template, request
+DEBUG = True
+
+from flask import Flask, render_template, request, redirect
 from flask_socketio import SocketIO
 
 import threading
 
 
+if DEBUG:
+    import os
+    os.remove("./data/srcml.db3")
+
 import srcml_database
 from srcml_analysis import *
+
+
+
+
+
+
 
 app = Flask(__name__)
 socket_io = SocketIO(app)
@@ -38,28 +50,45 @@ def process_github_link(github_link):
         socket_io.emit("update",{'message':'Downloaded the file!'})
     else:
         socket_io.emit("update",{'message':'Error downloading the file.'})
+        return
 
 
     socket_io.emit("update",{'message':'Converting to srcML...'})
 
     repo_name = "/".join(github_link.split("/")[-2:])
-    status = convert_to_srcml(repo_name) and convert_to_srcml(repo_name,True)
+    status = convert_to_srcml(repo_name) and convert_to_srcml(repo_name,True) and add_srcml_to_database(repo_name)
     if status:
         socket_io.emit("update",{'message':'Converted!'})
-
-    status = add_srcml_to_database(repo_name)
+    else:
+        socket_io.emit("update",{'message':'Error!'})
+        return
 
     socket_io.emit("update",{'message':'Running stereocode...'})
     status = run_stereocode(repo_name)
     if status:
         socket_io.emit("update",{'message':'Stereotyped!'})
+    else:
+        socket_io.emit("update",{'message':'Error!'})
+        return
 
     socket_io.emit("update",{'message':'Collecting names...'})
-    status = run_namecollector(repo_name)
+    status = run_namecollector(repo_name) and add_names_to_database(repo_name)
     if status:
         socket_io.emit("update",{'message':'Collected!'})
+    else:
+        socket_io.emit("update",{'message':'Error!'})
+        return
 
-    status = add_names_to_database(repo_name)
+    socket_io.emit("update",{'message':'Counting tags...'})
+    status = count_tags(repo_name)
+    if status:
+        socket_io.emit("update",{'message':'Counted!'})
+    else:
+        socket_io.emit("update",{'message':'Error!'})
+        return
+
+    socket_io.emit("update",{'message':'Done! Redirecting...'})
+    socket_io.emit("finish",{'redirect':f'/repo/{repo_name}'})
 
 
 

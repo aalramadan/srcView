@@ -41,6 +41,11 @@
             message.textContent = data.message;
             updatesDiv.appendChild(message);
         });
+        socket.on('finish',(data) => {
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1000);
+        });
     </script>
 </body>
 </html>
