@@ -88,8 +88,27 @@ def process_github_link(github_link):
         return
 
     socket_io.emit("update",{'message':'Done! Redirecting...'})
-    socket_io.emit("finish",{'redirect':f'/repo/{repo_name}'})
+    socket_io.emit("finish",{'redirect':f'/repos'})
 
+@app.route('/repos')
+def repos():
+    repos = srcml_database.retrieve_repos()
+    return render_template('repos.html', repos=repos)
+
+@app.route('/files/<repo_id>')
+def list_files(repo_id):
+    files = srcml_database.retrieve_files(repo_id)
+    return render_template('files.html', files=files)
+
+@app.route('/identifiers/<repo_id>')
+def list_identifiers(repo_id):
+    identifiers = srcml_database.retrieve_identifiers(repo_id)
+    return render_template('identifiers.html', identifiers=identifiers)
+
+@app.route('/tags/<repo_id>')
+def list_tags(repo_id):
+    tags = srcml_database.retrieve_tags(repo_id)
+    return render_template('tags.html', tags=tags)
 
 
 

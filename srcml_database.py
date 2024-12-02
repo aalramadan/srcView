@@ -130,6 +130,46 @@ def add_tag_count(tag,file_id,count):
     """,(tag,file_id,count))
 
 
+def retrieve_repos():
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT id, name
+        FROM repository
+    """)
+    return cursor.fetchall()
+
+def retrieve_files(repo_id):
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT id, name, language
+        FROM file
+        WHERE repo_id = ?
+    """, (repo_id,))
+    return cursor.fetchall()
+
+def retrieve_identifiers(repo_id):
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT name, type, category, file_id, line, column, stereotype
+        FROM identifier
+        WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    """, (repo_id,))
+    return cursor.fetchall()
+
+def retrieve_tags(repo_id):
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT tag, file_id, count
+        FROM tag_count
+        WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    """, (repo_id,))
+    return cursor.fetchall()
+
+
+
+
+
+
 
 
 

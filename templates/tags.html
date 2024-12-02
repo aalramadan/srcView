@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Tags</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-aawx5ziN9a+XhX5riR+7tWJRMF/gTWcSCyw/2IAidRe9alLz2vHH+H3J/bLMyOJo6cIJW2FzH6VZKDVo8/m2Ig==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .table-container {
+            width: 90%;
+            max-width: 1200px;
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: sticky; /* Stick the header row */
+            top: 0; /* Stick to the top */
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1c40f;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .actions a {
+            text-decoration: none;
+            color: #3498db;
+            margin-right: 10px; /* Add spacing between links */
+            display: inline-block; /* Ensure links are inline */
+        }
+        .actions a:hover {
+            color: #e74c3c;
+            cursor: pointer; /* Change cursor to pointer (finger) */
+        }
+    </style>
+</head>
+<body>
+    <h1>List of Tags</h1>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Tag</th>
+                <th>Count</th>
+                <th>Actions</th>
+            </tr>
+            {% for tag in tags %}
+            <tr>
+                <td>{{ tag['tag'] }}</td>
+                <td>{{ tag['count'] }}</td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
