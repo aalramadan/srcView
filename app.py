@@ -1,9 +1,10 @@
 DEBUG = True
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, send_file
 from flask_socketio import SocketIO
 
 import threading
+import io
 
 
 if DEBUG:
@@ -88,7 +89,9 @@ def process_github_link(github_link):
         return
 
     socket_io.emit("update",{'message':'Done! Redirecting...'})
-    socket_io.emit("finish",{'redirect':f'/repos'})
+    socket_io.emit("finish",{'redirect':f'/files/{srcml_database.get_repo_id_from_name(repo_name)}'})
+
+
 
 @app.route('/repos')
 def repos():
@@ -98,18 +101,61 @@ def repos():
 @app.route('/files/<repo_id>')
 def list_files(repo_id):
     files = srcml_database.retrieve_files(repo_id)
-    return render_template('files.html', files=files)
+    return render_template('files.html', files=files,repo=srcml_database.get_repo_name_from_id(repo_id))
 
-@app.route('/identifiers/<repo_id>')
-def list_identifiers(repo_id):
-    identifiers = srcml_database.retrieve_identifiers(repo_id)
-    return render_template('identifiers.html', identifiers=identifiers)
+@app.route('/identifiers/file/<file_id>')
+def list_identifiers(file_id):
+    identifiers = srcml_database.retrieve_identifiers(file_id)
+    return render_template('identifiers.html', identifiers=identifiers,display=srcml_database.get_file_name_from_id(file_id))
 
-@app.route('/tags/<repo_id>')
-def list_tags(repo_id):
-    tags = srcml_database.retrieve_tags(repo_id)
-    return render_template('tags.html', tags=tags)
+@app.route('/identifiers/repo/<repo_id>')
+def list_identifiers_from_repo(repo_id):
+    identifiers = srcml_database.retrieve_identifiers_from_repo(repo_id)
+    return render_template('identifiers.html', identifiers=identifiers,display=srcml_database.get_repo_name_from_id(repo_id))
 
+@app.route('/tags/file/<file_id>')
+def list_tags(file_id):
+    tags = srcml_database.retrieve_tags(file_id)
+    return render_template('tags.html', tags=tags,display=srcml_database.get_file_name_from_id(file_id))
+
+@app.route('/tags/repo/<repo_id>')
+def list_tags_from_repo(repo_id):
+    tags = srcml_database.retrieve_tags_from_repo(repo_id)
+    print(dict(tags))
+    return render_template('tags.html', tags=tags,display=srcml_database.get_repo_name_from_id(repo_id))
+
+
+@app.route('/xpath_run/repo/<repo_id>',methods=['GET', 'POST'])
+def xpath_on_repo(repo_id):
+    if request.method == 'GET':
+        return render_template('run_xpath.html')
+    if request.method == 'POST':
+        xpath = request.form['xpath']
+        thread = threading.Thread(target=execute_xpath_on_repo,args=(repo_id,xpath))
+        thread.start()
+
+        result="Running your XPath!"
+        return render_template('run_xpath.html', result=result)
+
+def execute_xpath_on_repo(repo_id,xpath):
+    run_xpath_on_repo(repo_id,xpath)
+    socket_io.emit("finish",{'redirect':'/repos'})
+
+
+
+@app.route('/download/file/<file_id>', methods=['GET'])
+def download_file(file_id):
+    repo_name = srcml_database.get_repo_name_from_file_id(file_id)
+    file_name = srcml_database.get_file_name_from_id(file_id)
+    file_buffer = io.BytesIO()
+    file_buffer.write(get_unit_text(repo_name,file_name))
+    file_buffer.seek(0)
+
+    return send_file(file_buffer,as_attachment=True,download_name=file_name.split("/")[-1],mimetype="text/plain")
+
+@app.route('/download/repo/<repo_id>', methods=['GET'])
+def download_repo(repo_id):
+    return send_file("data/"+srcml_database.get_repo_name_from_id(repo_id)+"/code.xml")
 
 
 if __name__ == '__main__':

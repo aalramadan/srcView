@@ -69,8 +69,11 @@
                 <td>{{ repo['name'] }}</td>
                 <td>
                     <a href="/files/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Files</a>
-                    <a href="/identifiers/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Identifiers</a>
-                    <a href="/tags/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Tags</a>
+                    <a href="/identifiers/repo/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Identifiers</a>
+                    <a href="/tags/repo/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Tags</a>
+                    <a href="/xpath_run/repo/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Run XPath Query</a>
+                    <a href="/srcql_run/repo/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Run srcQL Query</a>
+                    <a href="/download/repo/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Download Repo</a>
                 </td>
             </tr>
             {% endfor %}

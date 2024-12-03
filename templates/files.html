@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Files</title>
+    <title>List of Files in {{ repo }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-aawx5ziN9a+XhX5riR+7tWJRMF/gTWcSCyw/2IAidRe9alLz2vHH+H3J/bLMyOJo6cIJW2FzH6VZKDVo8/m2Ig==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -66,7 +66,7 @@
     </style>
 </head>
 <body>
-    <h1>List of Files</h1>
+    <h1>List of Files {{ repo }}</h1>
     <div class="table-container">
         <table>
             <tr>
@@ -79,7 +79,11 @@
                 <td>{{ file['name'] }}</td>
                 <td>{{ file['language'] }}</td>
                 <td class="actions">
-
+                    <a href="/identifiers/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> View Identifier Names</a>
+                    <a href="/tags/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> View Tag Counts</a>
+                    <a href="/xpath_run/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Run XPath Query</a>
+                    <a href="/srcql_run/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Run srcQL Query</a>
+                    <a href="/download/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Download File</a>
                 </td>
             </tr>
             {% endfor %}
