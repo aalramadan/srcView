@@ -45,6 +45,8 @@ def _create_database():
             line INTEGER NOT NULL,
             column INTEGER NOT NULL,
             stereotype TEXT,
+            nameChecker TEXT,
+            violationCode TEXT,
             FOREIGN KEY(file_id) REFERENCES file(id),
             PRIMARY KEY(name,category,file_id,line,column)
         );
@@ -114,12 +116,12 @@ def get_file_id_from_name_and_repo(filename,repo_id):
     """, (filename,repo_id))
     return cursor.fetchone()["id"]
 
-def add_identifier(name,type,category,file_id,line,column,stereotype):
+def add_identifier(name,type,category,file_id,line,column,stereotype, nameChecker, violationCode):
     cursor = connection.cursor()
     cursor.execute("""
-        INSERT INTO identifier (name,type,category,file_id,line,column,stereotype)
-        VALUES (?,?,?,?,?,?,?)
-    """,(name,type,category,file_id,line,column,stereotype))
+        INSERT INTO identifier (name,type,category,file_id,line,column,stereotype, nameChecker, violationCode)
+        VALUES (?,?,?,?,?,?,?,?,?)
+    """,(name,type,category,file_id,line,column,stereotype, nameChecker, violationCode))
 
 
 def add_tag_count(tag,file_id,count):

@@ -2,6 +2,7 @@ DEBUG = True
 
 from flask import Flask, render_template, request, redirect
 from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 import threading
 
@@ -78,6 +79,14 @@ def process_github_link(github_link):
     else:
         socket_io.emit("update",{'message':'Error!'})
         return
+
+    # socket_io.emit("update",{'message':'Checking names...'})
+    # status = run_nameChecker(repo_name) #and add_names_to_database(repo_name)
+    # if status:
+    #     socket_io.emit("update",{'message':'Checked!'})
+    # else:
+    #     socket_io.emit("update",{'message':'Error!'})
+    #     return
 
     socket_io.emit("update",{'message':'Counting tags...'})
     status = count_tags(repo_name)
