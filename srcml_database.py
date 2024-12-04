@@ -231,6 +231,37 @@ def add_query_result(file_id,query_id):
     """,(file_id,query_id))
 
 
+def remove_repo(repo_id):
+    cursor = connection.cursor()
+
+    # Delete associated tags
+    cursor.execute("""
+        DELETE FROM tag_count
+        WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    """, (repo_id,))
+
+    # Delete associated identifiers
+    cursor.execute("""
+        DELETE FROM identifier
+        WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    """, (repo_id,))
+
+    # Delete associated files
+    cursor.execute("""
+        DELETE FROM file
+        WHERE repo_id = ?
+    """, (repo_id,))
+
+    # Delete the repository
+    cursor.execute("""
+        DELETE FROM repository
+        WHERE id = ?
+    """, (repo_id,))
+
+    commit()
+
+
+
 
 
 

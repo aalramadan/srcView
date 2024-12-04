@@ -15,11 +15,6 @@ import srcml_database
 from srcml_analysis import *
 
 
-
-
-
-
-
 app = Flask(__name__)
 socket_io = SocketIO(app)
 
@@ -27,9 +22,21 @@ srcml_database._create_database()
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index():
+def repos():
+    if request.method == 'POST':
+        repo_id = request.form['repo_id']
+        success = srcml_database.remove_repo(repo_id)
+        if success:
+            return redirect('/')  # Redirect to refresh the page
+
+    # For GET requests, retrieve and display repositories
+    repos = srcml_database.retrieve_repos()
+    return render_template('repos.html', repos=repos)
+
+@app.route('/add', methods=['GET', 'POST'])
+def add_repo():
     if request.method == 'GET':
-        return render_template('index.html')
+        return render_template('add_repo.html')
 
     if request.method == 'POST':
         # filePath = request.form['filePath']
@@ -40,8 +47,8 @@ def index():
         thread = threading.Thread(target=process_github_link,args=(github_link,))
         thread.start()
 
-        return render_template('index.html', result=result)
-    return render_template('index.html')
+        return render_template('add_repo.html', result=result)
+    return render_template('add_repo.html')
 
 
 def process_github_link(github_link):
@@ -89,14 +96,8 @@ def process_github_link(github_link):
         return
 
     socket_io.emit("update",{'message':'Done! Redirecting...'})
-    socket_io.emit("finish",{'redirect':f'/files/{srcml_database.get_repo_id_from_name(repo_name)}'})
+    socket_io.emit("finish",{'redirect':f'/'})
 
-
-
-@app.route('/repos')
-def repos():
-    repos = srcml_database.retrieve_repos()
-    return render_template('repos.html', repos=repos)
 
 @app.route('/files/<repo_id>')
 def list_files(repo_id):
@@ -124,7 +125,6 @@ def list_tags_from_repo(repo_id):
     print(dict(tags))
     return render_template('tags.html', tags=tags,display=srcml_database.get_repo_name_from_id(repo_id))
 
-
 @app.route('/xpath_run/repo/<repo_id>',methods=['GET', 'POST'])
 def xpath_on_repo(repo_id):
     if request.method == 'GET':
@@ -140,8 +140,6 @@ def xpath_on_repo(repo_id):
 def execute_xpath_on_repo(repo_id,xpath):
     run_xpath_on_repo(repo_id,xpath)
     socket_io.emit("finish",{'redirect':'/repos'})
-
-
 
 @app.route('/download/file/<file_id>', methods=['GET'])
 def download_file(file_id):
