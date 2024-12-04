@@ -1,8 +1,9 @@
 DEBUG = True
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_socketio import SocketIO
 from flask_socketio import SocketIO, emit
+import sqlite3
 
 import threading
 
@@ -14,19 +15,13 @@ if DEBUG:
 import srcml_database
 from srcml_analysis import *
 
-
-
-
-
-
-
 app = Flask(__name__)
 socket_io = SocketIO(app)
 
 srcml_database._create_database()
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/clone', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
         return render_template('index.html')
@@ -40,8 +35,30 @@ def index():
         thread = threading.Thread(target=process_github_link,args=(github_link,))
         thread.start()
 
-        return render_template('index.html', result=result)
+        return redirect(url_for('home'))
     return render_template('index.html')
+
+@app.route('/')
+@app.route('/home')
+def home():
+    return redirect(url_for('index'))
+
+@app.route('/table/<table_name>')
+def table_view(table_name=None):
+    table_names = srcml_database.fetch_table_names()
+
+    if table_names == []:
+        columns = []
+        rows = []
+        return render_template('database.html', columns=columns, rows=rows, table_name="", table_names=table_names)
+
+        # return redirect(url_for('index'))
+    else:
+        columns, rows = srcml_database.fetch_table_data(table_name)
+        print(rows)
+    return render_template('database.html', columns=columns, rows=rows, table_name=table_name, table_names=table_names)
+
+
 
 
 def process_github_link(github_link):
@@ -80,14 +97,6 @@ def process_github_link(github_link):
         socket_io.emit("update",{'message':'Error!'})
         return
 
-    # socket_io.emit("update",{'message':'Checking names...'})
-    # status = run_nameChecker(repo_name) #and add_names_to_database(repo_name)
-    # if status:
-    #     socket_io.emit("update",{'message':'Checked!'})
-    # else:
-    #     socket_io.emit("update",{'message':'Error!'})
-    #     return
-
     socket_io.emit("update",{'message':'Counting tags...'})
     status = count_tags(repo_name)
     if status:
@@ -97,10 +106,7 @@ def process_github_link(github_link):
         return
 
     socket_io.emit("update",{'message':'Done! Redirecting...'})
-    socket_io.emit("finish",{'redirect':f'/repo/{repo_name}'})
-
-
-
+    socket_io.emit("finish",{'redirect':f'/home'})
 
 if __name__ == '__main__':
     app.run(debug=True)

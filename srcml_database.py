@@ -131,8 +131,31 @@ def add_tag_count(tag,file_id,count):
         VALUES (?,?,?)
     """,(tag,file_id,count))
 
+def fetch_table_data(table_name):
+    cursor = connection.cursor()
+
+    cursor.execute(f"PRAGMA table_info({table_name})")
+    cols = cursor.fetchall()
+    
+
+    if cols and isinstance(cols[0], dict):  
+        columns = [col['name'] for col in cols]
+    else:  
+        columns = [col[1] for col in cols]
+    
+    cursor.execute(f"SELECT * FROM {table_name};")
+    rows = cursor.fetchall()
+    return columns, rows
 
 
+def fetch_table_names():
+    # try:
+    cursor = connection.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    rows = cursor.fetchall()
+    if rows and isinstance(rows[0], dict):  # If rows are dictionaries
+        table_names = [row['name'] for row in rows]
+    else:  # Default to tuple format
+        table_names = [row[0] for row in rows]
 
-
-
+    return table_names
