@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Identifiers in {{ display }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .navbar {
+            width: 100%;
+            background-color: #2c3e50; /* Dark blue background */
+            display: flex;
+            justify-content: center; /* Center the items */
+            align-items: center;
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky; /* Stick to the top of the viewport */
+            top: 0;
+            z-index: 1000; /* Ensure it stays on top of other content */
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #ecf0f1; /* Light gray text */
+            margin: 0 15px; /* Space between links */
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 15px;
+            border-radius: 5px; /* Rounded corners for hover effect */
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+        }
+
+        .navbar a:hover {
+            background-color: #f1c40f; /* Highlight in yellow */
+            color: #2c3e50; /* Change text color to dark blue */
+        }
+
+        .navbar a.active {
+            background-color: #3498db; /* Highlight active tab in bright blue */
+            color: #fff;
+        } 
+        .table-container {
+            width: 90%;
+            max-width: 1200px;
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: sticky; /* Stick the header row */
+            top: 0; /* Stick to the top */
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1c40f;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .actions a {
+            text-decoration: none;
+            color: #3498db;
+            margin-right: 10px; /* Add spacing between links */
+            display: inline-block; /* Ensure links are inline */
+        }
+        .actions a:hover {
+            color: #e74c3c;
+            cursor: pointer; /* Change cursor to pointer (finger) */
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        {% for tab in navbar %}
+            <a href="/{{ tab[1] }}">{{ tab[0] }}</a>
+        {% endfor %}
+    </div>
+    <h1>List of Identifiers in {{ display }}</h1>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Line</th>
+                <th>Column</th>
+                {% if 'filename' in identifiers[0] %}
+                <th>Filename</th>
+                {% endif %}
+                <th>Stereotype</th>
+                <th>NameChecker</th>
+                <th>Violation Code</th>
+                <th>Actions</th>
+            </tr>
+            {% for identifier in identifiers %}
+            <tr>
+                <td>{{ identifier['name'] }}</td>
+                <td>{{ identifier['type'] }}</td>
+                <td>{{ identifier['category'] }}</td>
+                <td>{{ identifier['line'] }}</td>
+                <td>{{ identifier['column'] }}</td>
+                {% if 'filename' in identifier %}
+                <td>{{ identifier['filename'] }}</td>
+                {% endif %}
+                <td>{{ identifier['stereotype'] }}</td>
+                <td>{{ identifier['nameChecker'] }}</td>
+                <td>{{ identifier['violationCode'] }}</td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

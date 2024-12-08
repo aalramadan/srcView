@@ -29,6 +29,15 @@ h1 {
     text-align: center; /* Align text and form elements to the left */
 }
 
+.table-container {
+    width: 90%;
+    max-width: 1200px;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 10px;
+}
+
 p {
     color: #666;
     font-size: 18px;
