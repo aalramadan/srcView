@@ -66,7 +66,7 @@
     </style>
 </head>
 <body>
-    <h1>List of Files {{ repo }}</h1>
+    <h1>List of Files in {{ repo }}</h1>
     <div class="table-container">
         <table>
             <tr>
@@ -81,9 +81,10 @@
                 <td class="actions">
                     <a href="/identifiers/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> View Identifier Names</a>
                     <a href="/tags/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> View Tag Counts</a>
-                    <a href="/xpath_run/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Run XPath Query</a>
-                    <a href="/srcql_run/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Run srcQL Query</a>
-                    <a href="/download/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Download File</a>
+                    <a href="/xpath_run/file/{{ file['id'] }}"><i class="fas fa-search"></i> XPath</a>
+                    <a href="/srcql_run/file/{{ file['id'] }}"><i class="fas fa-search"></i> srcQL</a>
+                    <a href="/download/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Download</a>
+                    <a href="/download_srcml/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Download srcML</a>
                 </td>
             </tr>
             {% endfor %}

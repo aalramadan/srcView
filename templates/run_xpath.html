@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Run XPath on</h1>
+        <h1>Run XPath on {{ display }}</h1>
         <p>Enter the XPath Below</p>
 
         <!-- Form for file path and GitHub URL -->
@@ -32,7 +32,6 @@
     </div>
     <script>
         const socket = io();
-        const updatesDiv = document.getElementById('updates');
 
         socket.on('finish',(data) => {
             setTimeout(() => {

@@ -164,11 +164,17 @@ def run_xpath_on_all(xpath):
         run_xpath_on_repo(repo["id"],xpath,run_id)
     srcml_database.commit()
 
-def get_unit_text(repo,file):
+def get_unit_code(repo,file):
     with pylibsrcml.srcMLArchiveRead("data/"+repo+"/code.xml") as archive:
         for unit in archive:
             if unit.get_filename() == file:
                 return unit.unparse_memory()
+
+def get_unit_text(repo,file):
+    with pylibsrcml.srcMLArchiveRead("data/"+repo+"/code.xml") as archive:
+        for unit in archive:
+            if unit.get_filename() == file:
+                return str(unit).encode('utf-8')
 
 
 

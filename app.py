@@ -4,12 +4,16 @@ from flask import Flask, render_template, request, redirect, send_file
 from flask_socketio import SocketIO
 
 import threading
+import time
 import io
 
 
 if DEBUG:
     import os
-    os.remove("./data/srcml.db3")
+    try:
+        os.remove("./data/srcml.db3")
+    except:
+        pass
 
 import srcml_database
 from srcml_analysis import *
@@ -122,7 +126,6 @@ def list_tags(file_id):
 @app.route('/tags/repo/<repo_id>')
 def list_tags_from_repo(repo_id):
     tags = srcml_database.retrieve_tags_from_repo(repo_id)
-    print(dict(tags))
     return render_template('tags.html', tags=tags,display=srcml_database.get_repo_name_from_id(repo_id))
 
 @app.route('/xpath_run/repo/<repo_id>',methods=['GET', 'POST'])
@@ -139,21 +142,57 @@ def xpath_on_repo(repo_id):
 
 def execute_xpath_on_repo(repo_id,xpath):
     run_xpath_on_repo(repo_id,xpath)
-    socket_io.emit("finish",{'redirect':'/repos'})
+    time.sleep(1)
+    socket_io.emit("finish",{'redirect':'/'})
+
+@app.route('/xpath_run/file/<file_id>',methods=['GET', 'POST'])
+def xpath_on_file(file_id):
+    if request.method == 'GET':
+        return render_template('run_xpath.html')
+    if request.method == 'POST':
+        xpath = request.form['xpath']
+        thread = threading.Thread(target=execute_xpath_on_file,args=(file_id,xpath))
+        thread.start()
+
+        result="Running your XPath!"
+        return render_template('run_xpath.html', result=result)
+
+def execute_xpath_on_file(file_id,xpath):
+    run_xpath_on_file(srcml_database.get_repo_id_from_file_id(file_id),file_id,xpath)
+    time.sleep(1)
+    socket_io.emit("finish",{'redirect':'/'})
+
+
 
 @app.route('/download/file/<file_id>', methods=['GET'])
 def download_file(file_id):
     repo_name = srcml_database.get_repo_name_from_file_id(file_id)
     file_name = srcml_database.get_file_name_from_id(file_id)
     file_buffer = io.BytesIO()
-    file_buffer.write(get_unit_text(repo_name,file_name))
+    file_buffer.write(get_unit_code(repo_name,file_name))
     file_buffer.seek(0)
 
     return send_file(file_buffer,as_attachment=True,download_name=file_name.split("/")[-1],mimetype="text/plain")
 
+@app.route('/download_srcml/file/<file_id>', methods=['GET'])
+def download_srcml_file(file_id):
+    repo_name = srcml_database.get_repo_name_from_file_id(file_id)
+    file_name = srcml_database.get_file_name_from_id(file_id)
+    file_buffer = io.BytesIO()
+    file_buffer.write(get_unit_text(repo_name,file_name))
+    file_buffer.seek(0)
+
+    return send_file(file_buffer,as_attachment=True,download_name=file_name.split("/")[-1]+".xml",mimetype="text/plain")
+
 @app.route('/download/repo/<repo_id>', methods=['GET'])
 def download_repo(repo_id):
-    return send_file("data/"+srcml_database.get_repo_name_from_id(repo_id)+"/code.xml")
+    return send_file("data/"+srcml_database.get_repo_name_from_id(repo_id)+"/code.zip",as_attachment=True,download_name=srcml_database.get_repo_name_from_id(repo_id).split("/")[-1]+".zip")
+
+@app.route('/download_srcml/repo/<repo_id>', methods=['GET'])
+def download_srcml_repo(repo_id):
+    return send_file("data/"+srcml_database.get_repo_name_from_id(repo_id)+"/code.xml",as_attachment=True,download_name=srcml_database.get_repo_name_from_id(repo_id).split("/")[-1]+".xml")
+
+
 
 
 if __name__ == '__main__':
