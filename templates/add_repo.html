@@ -6,29 +6,89 @@
     <title>Run srcML</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            width: 100%;
+            background-color: #2c3e50; /* Dark blue background */
+            display: flex;
+            justify-content: center; /* Center the items */
+            align-items: center;
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky; /* Stick to the top of the viewport */
+            top: 0;
+            z-index: 1000; /* Ensure it stays on top of other content */
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #ecf0f1; /* Light gray text */
+            margin: 0 15px; /* Space between links */
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 15px;
+            border-radius: 5px; /* Rounded corners for hover effect */
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+        }
+
+        .navbar a:hover {
+            background-color: #f1c40f; /* Highlight in yellow */
+            color: #2c3e50; /* Change text color to dark blue */
+        }
+
+        .navbar a.active {
+            background-color: #3498db; /* Highlight active tab in bright blue */
+            color: #fff;
+        } 
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px; /* Add some spacing below the navbar */
+        }
+
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>srcView</h1>
-        <p>Enter the GitHub repository URL below.</p>
+    <div class="navbar">
+        {% for tab in navbar %}
+            <a href="/{{ tab[1] }}">{{ tab[0] }}</a>
+        {% endfor %}
+    </div>
+    <div class="content">
+        <div class="container">
+            <h1>srcView</h1>
+            <p>Enter the GitHub repository URL below.</p>
 
-        <!-- Form for file path and GitHub URL -->
-        <form method="POST">
-            <!-- <div>
-                <label for="filePath" class="file-label">File Path:</label>
-                <input type="text" id="filePath" name="filePath" placeholder="Enter file path" required>
-            </div> -->
-            <div>
-                <label for="githubLink" class="file-label">GitHub URL:</label>
-                <input type="url" id="githubLink" name="githubLink" placeholder="Enter GitHub repository URL" required>
-            </div>
+            <!-- Form for file path and GitHub URL -->
+            <form method="POST">
+                <!-- <div>
+                    <label for="filePath" class="file-label">File Path:</label>
+                    <input type="text" id="filePath" name="filePath" placeholder="Enter file path" required>
+                </div> -->
+                <div>
+                    <label for="githubLink" class="file-label">GitHub URL:</label>
+                    <input type="url" id="githubLink" name="githubLink" placeholder="Enter GitHub repository URL" required>
+                </div>
 
-            <button type="submit">Submit</button>
-        </form>
+                <button type="submit">Submit</button>
+            </form>
 
-        <!-- Display Results -->
-        <p id="result">{{ result }}</p>
-        <div id="updates"/>
+            <!-- Display Results -->
+            <p id="result">{{ result }}</p>
+            <div id="updates"/>
+        </div>
     </div>
 
 

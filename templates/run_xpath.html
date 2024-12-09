@@ -7,16 +7,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
-    body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #F4F4F4;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            height: 100vh;
         }
 
         .container {
@@ -24,7 +21,7 @@
             padding: 40px;
             border-radius: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 90%;
+            width: 100%;
             max-width: 500px;
             margin-top: 20px; /* Add spacing below navbar */
         }
@@ -38,7 +35,7 @@
         }
 
         .table-container {
-            width: 90%;
+            width: 100%;
             max-width: 1200px;
             overflow-x: auto;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -152,8 +149,15 @@
             background-color: #3498db; /* Highlight active tab in bright blue */
             color: #fff;
         }
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px; /* Add some spacing below the navbar */
+        }
     </style>
-    
 </head>
 <body>
     <div class="navbar">
@@ -161,27 +165,28 @@
             <a href="/{{ tab[1] }}">{{ tab[0] }}</a>
         {% endfor %}
     </div>
-    <div class="container">
-        <h1>Run XPath on</h1>
-        <p>Enter the XPath Below</p>
+    <div class="content">
+        <div class="container">
+            <h1>Run XPath on {{ display }}</h1>
 
-        <!-- Form for file path and GitHub URL -->
-        <form method="POST">
-            <!-- <div>
-                <label for="filePath" class="file-label">File Path:</label>
-                <input type="text" id="filePath" name="filePath" placeholder="Enter file path" required>
-            </div> -->
-            <div>
-                <label for="xpath" class="file-label">XPath:</label>
-                <input id="xpath" name="xpath" placeholder="Enter XPath here" required>
-            </div>
+            <!-- Form for file path and GitHub URL -->
+            <form method="POST">
+                <!-- <div>
+                    <label for="filePath" class="file-label">File Path:</label>
+                    <input type="text" id="filePath" name="filePath" placeholder="Enter file path" required>
+                </div> -->
+                <div>
+                    <label for="xpath" class="file-label">Query:</label>
+                    <input id="xpath" name="xpath" placeholder="Enter XPath here" required>
+                </div>
 
-            <button type="submit">Submit</button>
-        </form>
+                <button type="submit">Submit</button>
+            </form>
 
-        <!-- Display Results -->
-        <p id="result">{{ result }}</p>
-        <div id="updates"/>
+            <!-- Display Results -->
+            <p id="result">{{ result }}</p>
+            <div id="updates"/>
+        </div>
     </div>
     <script>
         const socket = io();

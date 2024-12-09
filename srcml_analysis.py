@@ -104,7 +104,7 @@ def run_namecollector(repo_name):
 
 
 def write_record_to_csv(record):
-    file_path = "nameCheckerCSV/nameCheckerRecord.csv"
+    file_path = "data/nameCheckerRecord.csv"
     with open(file_path, mode='w', newline='') as file:
         file.write(record)  
 def nameCheckerOutput(stdout):
@@ -126,7 +126,7 @@ def nameCheckerOutput(stdout):
 
 def run_nameChecker(record):
     write_record_to_csv(record)
-    file_path = "nameCheckerCSV/nameCheckerRecord.csv"
+    file_path = "data/nameCheckerRecord.csv"
     command = f"cat {file_path} | ./programs/nameChecker"
     
     result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

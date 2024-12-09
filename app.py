@@ -8,9 +8,9 @@ import threading
 import io
 
 
-if DEBUG:
-    import os
-    os.remove("./data/srcml.db3")
+# if DEBUG:
+#     import os
+#     os.remove("./data/srcml.db3")
 
 import srcml_database
 from srcml_analysis import *
@@ -36,8 +36,10 @@ def repos():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_repo():
+    navbar = []
+    navbar.append(["Repositories", ""])
     if request.method == 'GET':
-        return render_template('add_repo.html')
+        return render_template('add_repo.html', navbar=navbar)
 
     if request.method == 'POST':
         # filePath = request.form['filePath']
@@ -48,8 +50,8 @@ def add_repo():
         thread = threading.Thread(target=process_github_link,args=(github_link,))
         thread.start()
 
-        return render_template('add_repo.html', result=result)
-    return render_template('add_repo.html')
+        return render_template('add_repo.html', result=result, navbar=navbar)
+    return render_template('add_repo.html', navbar=navbar)
 
 
 def process_github_link(github_link):
@@ -103,48 +105,47 @@ def process_github_link(github_link):
 @app.route('/files/<repo_id>')
 def list_files(repo_id):
     navbar = []
-    navbar.append(["Home", ""])
+    navbar.append(["Repositories", ""])
     files = srcml_database.retrieve_files(repo_id)
-    return render_template('files.html', files=files,repo=srcml_database.get_repo_name_from_id(repo_id), navbar=navbar)
+    return render_template('files.html', files=files, repo=srcml_database.get_repo_name_from_id(repo_id), navbar=navbar)
 
 @app.route('/identifiers/file/<file_id>')
 def list_identifiers(file_id):
     navbar = []
-    navbar.append(["Home", ""])
+    navbar.append(["Repositories", ""])
     identifiers = srcml_database.retrieve_identifiers(file_id)
-    return render_template('identifiers.html', identifiers=identifiers,display=srcml_database.get_file_name_from_id(file_id), navbar=navbar)
+    return render_template('identifiers.html', identifiers=identifiers, display=srcml_database.get_file_name_from_id(file_id), navbar=navbar)
 
 @app.route('/identifiers/repo/<repo_id>')
 def list_identifiers_from_repo(repo_id):
     navbar = get_navbar_links(repo_id)
     identifiers = srcml_database.retrieve_identifiers_from_repo(repo_id)
-    return render_template('identifiers.html', identifiers=identifiers,display=srcml_database.get_repo_name_from_id(repo_id), navbar=navbar)
+    return render_template('identifiers.html', identifiers=identifiers, display=srcml_database.get_repo_name_from_id(repo_id), navbar=navbar)
 
 @app.route('/tags/file/<file_id>')
 def list_tags(file_id):
-    navbar = get_navbar_links(repo_id)
+    navbar = get_navbar_links(file_id)
     tags = srcml_database.retrieve_tags(file_id)
-    return render_template('tags.html', tags=tags,display=srcml_database.get_file_name_from_id(file_id), navbar=navbar)
+    return render_template('tags.html', tags=tags, display=srcml_database.get_file_name_from_id(file_id), navbar=navbar)
 
 @app.route('/tags/repo/<repo_id>')
 def list_tags_from_repo(repo_id):
     navbar = get_navbar_links(repo_id)
     tags = srcml_database.retrieve_tags_from_repo(repo_id)
-    print(dict(tags))
-    return render_template('tags.html', tags=tags,display=srcml_database.get_repo_name_from_id(repo_id), navbar=navbar)
+    return render_template('tags.html', tags=tags, display=srcml_database.get_repo_name_from_id(repo_id), navbar=navbar)
 
 @app.route('/xpath_run/repo/<repo_id>',methods=['GET', 'POST'])
 def xpath_on_repo(repo_id):
     navbar = get_navbar_links(repo_id)
     if request.method == 'GET':
-        return render_template('run_xpath.html', navbar=navbar)
+        return render_template('run_xpath.html', navbar=navbar, display=srcml_database.get_repo_name_from_id(repo_id))
     if request.method == 'POST':
         xpath = request.form['xpath']
         thread = threading.Thread(target=execute_xpath_on_repo,args=(repo_id,xpath))
         thread.start()
 
         result="Running your XPath!"
-        return render_template('run_xpath.html', result=result, navbar=navbar)
+        return render_template('run_xpath.html', result=result, navbar=navbar, display=srcml_database.get_repo_name_from_id(repo_id))
 
 def execute_xpath_on_repo(repo_id,xpath):
     run_xpath_on_repo(repo_id,xpath)
@@ -155,7 +156,7 @@ def get_navbar_links(repo_id):
     table_names = srcml_database.fetch_table_names()
     for table in table_names:  
         if table == 'repository':
-            nav_links.append(["Home", ""])
+            nav_links.append(["Repositories", ""])
         # elif table == 'sqlite_sequence':
         #     nav_links.append(["Identifiers", "identifiers/repo/"+repo_id])
         elif table == 'file':

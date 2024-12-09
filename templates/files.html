@@ -10,12 +10,9 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             color: #333;
+            margin: 0;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
         }
         h1 {
             text-align: center;
@@ -57,7 +54,7 @@
             color: #fff;
         } 
         .table-container {
-            width: 90%;
+            width: 100%;
             max-width: 1200px;
             overflow-x: auto; /* Allow horizontal scrolling if needed */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -65,7 +62,7 @@
             border-radius: 10px;
         }
         .table-container {
-            width: 90%;
+            width: 100%;
             max-width: 1200px;
             overflow-x: auto; /* Allow horizontal scrolling if needed */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -105,6 +102,14 @@
             color: #e74c3c;
             cursor: pointer; /* Change cursor to pointer (finger) */
         }
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px; /* Add some spacing below the navbar */
+        }
     </style>
 </head>
 <body>
@@ -114,27 +119,29 @@
         {% endfor %}
     </div>
     <h1>List of Files {{ repo }}</h1>
-    <div class="table-container">
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Language</th>
-                <th>Actions</th>
-            </tr>
-            {% for file in files %}
-            <tr>
-                <td>{{ file['name'] }}</td>
-                <td>{{ file['language'] }}</td>
-                <td class="actions">
-                    <a href="/identifiers/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> View Identifier Names</a>
-                    <a href="/tags/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> View Tag Counts</a>
-                    <a href="/xpath_run/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Run XPath Query</a>
-                    <a href="/srcql_run/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Run srcQL Query</a>
-                    <a href="/download/file/{{ file['id'] }}"><i class="fas fa-folder-open"></i> Download File</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+    <div class="content">
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Language</th>
+                    <th>Actions</th>
+                </tr>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file['name'] }}</td>
+                    <td>{{ file['language'] }}</td>
+                    <td class="actions">
+                        <a href="/identifiers/file/{{ file['id'] }}"><i class="fas fa-id-badge"></i> Identifiers</a>
+                        <a href="/tags/file/{{ file['id'] }}"><i class="fas fa-tags"></i> Tags</a>
+                        <a href="/xpath_run/file/{{ file['id'] }}"><i class="fas fa-search"></i> XPath</a>
+                        <a href="/srcql_run/file/{{ file['id'] }}"><i class="fas fa-search"></i> srcQL</a>
+                        <a href="/download/file/{{ file['id'] }}"><i class="fas fa-download"></i> Download</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </body>
 </html>
