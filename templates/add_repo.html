@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run srcML</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>srcView</h1>
+        <p>Enter the GitHub repository URL below.</p>
+
+        <!-- Form for file path and GitHub URL -->
+        <form method="POST">
+            <!-- <div>
+                <label for="filePath" class="file-label">File Path:</label>
+                <input type="text" id="filePath" name="filePath" placeholder="Enter file path" required>
+            </div> -->
+            <div>
+                <label for="githubLink" class="file-label">GitHub URL:</label>
+                <input type="url" id="githubLink" name="githubLink" placeholder="Enter GitHub repository URL" required>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Display Results -->
+        <p id="result">{{ result }}</p>
+        <div id="updates"/>
+    </div>
+
+
+    <script>
+        const socket = io();
+        const updatesDiv = document.getElementById('updates');
+
+        socket.on('update', (data) => {
+            const message = document.createElement('p');
+            message.textContent = data.message;
+            updatesDiv.appendChild(message);
+        });
+        socket.on('finish',(data) => {
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repositories</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .table-container {
+            width: 90%;
+            max-width: 1200px;
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: sticky; /* Stick the header row */
+            top: 0; /* Stick to the top */
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1c40f;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .actions a {
+            text-decoration: none;
+            color: #3498db;
+            margin-right: 10px; /* Add spacing between links */
+            display: inline-block; /* Ensure links are inline */
+        }
+        .actions a:hover {
+            color: #e74c3c;
+            cursor: pointer; /* Change cursor to pointer (finger) */
+        }
+        .delete-icon {
+            text-decoration: none; /* Ensure no underline */
+            color: #3498db; /* Blue color */
+            background-color: transparent; /* Transparent background */
+            border: none; /* No border */
+            padding: 0; /* No padding */
+            font-size: 1.2em; /* Increase icon size */
+            display: inline-flex; /* Align icon with text */
+            align-items: center; /* Center align */
+            justify-content: flex-start; /* Align to the left */
+            transition: color 0.3s ease; /* Smooth transition for color */
+            float: right; /* Align the delete icon to the right */
+        }
+        .delete-icon:hover {
+            color: #e74c3c; /* Red color on hover */
+            cursor: pointer; /* Change cursor to pointer (finger) */
+        }
+        .add-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            margin: 10px 0; /* Combined top and bottom margin */
+            text-decoration: none;
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .add-button:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Add a larger shadow on hover */
+        }
+
+</style>
+</head>
+<body>
+    <div class="table-container">    
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for repo in repos %}
+            <tr>
+                <td>{{ repo['name'] }}</td>
+                <td class="actions">
+                    <a href="/files/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Files</a>
+                    <a href="/identifiers/repo/{{ repo['id'] }}"><i class="fas fa-id-badge"></i> Identifiers</a>
+                    <a href="/tags/repo/{{ repo['id'] }}"><i class="fas fa-tags"></i> Tags</a>
+                    <a href="/xpath_run/repo/{{ repo['id'] }}"><i class="fas fa-search"></i> XPath</a>
+                    <a href="/srcql_run/repo/{{ repo['id'] }}"><i class="fas fa-search"></i> srcQL</a>
+                    <a href="/download/repo/{{ repo['id'] }}"><i class="fas fa-download"></i> Download</a>
+                    <a href="/download_srcml/repo/{{ repo['id'] }}"><i class="fas fa-download"></i> Download srcML</a>
+                    <form method="POST" action="/" style="display:inline;">
+                        <input type="hidden" name="repo_id" value="{{ repo['id'] }}">
+                        <button type="submit" class="delete-icon"><i class="fas fa-trash-alt"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <a href="/add" class="add-button"><i class="fas fa-plus"></i> Add Repository</a>
+</body>
+</html>
+
+
+
