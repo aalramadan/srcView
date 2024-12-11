@@ -448,6 +448,9 @@ libsrcml.srcml_archive_skip_unit.argtypes = [c_void_p]
 libsrcml.srcml_append_transform_xpath.restype = c_int
 libsrcml.srcml_append_transform_xpath.argtypes = [c_void_p, c_char_p]
 
+libsrcml.srcml_append_transform_srcql.restype = c_int
+libsrcml.srcml_append_transform_srcql.argtypes = [c_void_p, c_char_p]
+
 # int srcml_append_transform_xpath_attribute(struct srcml_archive* archive, const char* xpath_string,
 #                                                             const char* prefix, const char* namespace_uri,
 #                                                             const char* attr_name, const char* attr_value);

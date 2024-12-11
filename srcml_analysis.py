@@ -164,6 +164,39 @@ def run_xpath_on_all(xpath):
         run_xpath_on_repo(repo["id"],xpath,run_id)
     srcml_database.commit()
 
+def run_srcql_on_file(repo_id,file_id,srcql,run_id = None):
+    if run_id == None:
+        run_id = srcml_database.create_query_run(srcql,"srcql")
+    repo_name = srcml_database.get_repo_name_from_id(repo_id)
+    with pylibsrcml.srcMLArchiveRead("data/"+repo_name+"/code.xml") as iarchive, pylibsrcml.srcMLArchiveWrite("data/"+repo_name+"/query_"+str(run_id)+"_"+str(file_id)+".xml") as oarchive:
+        iarchive.append_transform_srcql(srcql)
+        for unit in iarchive:
+            if(unit.get_filename() == srcml_database.get_file_name_from_id(file_id)):
+                result = iarchive.unit_apply_transforms(unit)
+                if not result.is_unit_result():
+                    break
+                for result_unit in result:
+                    oarchive.write_unit(result_unit)
+                srcml_database.add_query_result(file_id,run_id)
+                break
+    srcml_database.commit()
+
+def run_srcql_on_repo(repo_id,srcql,run_id = None):
+    if run_id == None:
+        run_id = srcml_database.create_query_run(srcql,"srcql")
+    files = srcml_database.retrieve_files(repo_id)
+    for file in files:
+        run_srcql_on_file(repo_id,file["id"],srcql,run_id)
+    srcml_database.commit()
+
+def run_srcql_on_all(srcql):
+    run_id = srcml_database.create_query_run(srcql,"srcql")
+    repos = srcml_database.retrieve_repos()
+    for repo in repos:
+        run_srcql_on_repo(repo["id"],srcql,run_id)
+    srcml_database.commit()
+
+
 def get_unit_code(repo,file):
     with pylibsrcml.srcMLArchiveRead("data/"+repo+"/code.xml") as archive:
         for unit in archive:

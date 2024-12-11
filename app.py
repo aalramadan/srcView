@@ -163,6 +163,41 @@ def execute_xpath_on_file(file_id,xpath):
     socket_io.emit("finish",{'redirect':'/'})
 
 
+@app.route('/srcql_run/repo/<repo_id>',methods=['GET', 'POST'])
+def srcql_on_repo(repo_id):
+    if request.method == 'GET':
+        return render_template('run_srcql.html')
+    if request.method == 'POST':
+        srcql = request.form['srcql']
+        thread = threading.Thread(target=execute_srcql_on_repo,args=(repo_id,srcql))
+        thread.start()
+
+        result="Running your srcql!"
+        return render_template('run_srcql.html', result=result)
+
+def execute_srcql_on_repo(repo_id,srcql):
+    run_srcql_on_repo(repo_id,srcql)
+    time.sleep(1)
+    socket_io.emit("finish",{'redirect':'/'})
+
+@app.route('/srcql_run/file/<file_id>',methods=['GET', 'POST'])
+def srcql_on_file(file_id):
+    if request.method == 'GET':
+        return render_template('run_srcql.html')
+    if request.method == 'POST':
+        srcql = request.form['srcql']
+        thread = threading.Thread(target=execute_srcql_on_file,args=(file_id,srcql))
+        thread.start()
+
+        result="Running your srcql!"
+        return render_template('run_srcql.html', result=result)
+
+def execute_srcql_on_file(file_id,srcql):
+    run_srcql_on_file(srcml_database.get_repo_id_from_file_id(file_id),file_id,srcql)
+    time.sleep(1)
+    socket_io.emit("finish",{'redirect':'/'})
+
+
 
 @app.route('/download/file/<file_id>', methods=['GET'])
 def download_file(file_id):

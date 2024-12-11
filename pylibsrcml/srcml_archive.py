@@ -522,6 +522,13 @@ class srcMLArchiveRead(srcMLArchive):
         status = libsrcml.srcml_append_transform_xpath(self.c_archive, xpath_string.encode())
         check_srcml_status(status)
 
+    def append_transform_srcql(self, srcql_string: str) -> None:
+        if type(srcql_string) != str:
+            raise srcMLTypeError(self.append_transform_srcql,"srcql_string",srcql_string)
+
+        status = libsrcml.srcml_append_transform_srcql(self.c_archive, srcql_string.encode())
+        check_srcml_status(status)
+
     # -------------------------------------------------------------------------------------------
     # Append the XPath expression to the list of transformations/queries.
     # Instead of outputting the results in a separate unit tag, output the complete
