@@ -113,6 +113,7 @@
                     <a href="/files/{{ repo['id'] }}"><i class="fas fa-folder-open"></i> Files</a>
                     <a href="/identifiers/repo/{{ repo['id'] }}"><i class="fas fa-id-badge"></i> Identifiers</a>
                     <a href="/tags/repo/{{ repo['id'] }}"><i class="fas fa-tags"></i> Tags</a>
+                    <a href="/queries/repo/{{ repo['id'] }}"><i class="fas fa-search"></i> Queries</a>
                     <a href="/xpath_run/repo/{{ repo['id'] }}"><i class="fas fa-search"></i> XPath</a>
                     <a href="/srcql_run/repo/{{ repo['id'] }}"><i class="fas fa-search"></i> srcQL</a>
                     <a href="/download/repo/{{ repo['id'] }}"><i class="fas fa-download"></i> Download</a>
@@ -127,6 +128,8 @@
         </table>
     </div>
     <a href="/add" class="add-button"><i class="fas fa-plus"></i> Add Repository</a>
+    <a href="/xpath_run/all" class="add-button"><i class="fas fa-plus"></i> Run XPath on All</a>
+    <a href="/srcql_run/all" class="add-button"><i class="fas fa-plus"></i> Run srcQL on All</a>
 </body>
 </html>
 

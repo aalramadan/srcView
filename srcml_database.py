@@ -32,7 +32,10 @@ def _create_database():
             name TEXT NOT NULL,
             language TEXT NOT NULL,
             repo_id INTEGER,
-            FOREIGN KEY(repo_id) REFERENCES repository(id)
+            CONSTRAINT fk_repo_id
+                FOREIGN KEY(repo_id)
+                REFERENCES repository(id)
+                ON DELETE CASCADE
         );
     """)
 
@@ -45,7 +48,12 @@ def _create_database():
             line INTEGER NOT NULL,
             column INTEGER NOT NULL,
             stereotype TEXT,
-            FOREIGN KEY(file_id) REFERENCES file(id),
+            nameChecker TEXT, 
+            violationCode TEXT,
+            CONSTRAINT fk_filde_id
+                FOREIGN KEY(file_id)
+                REFERENCES file(id)
+                ON DELETE CASCADE,
             PRIMARY KEY(name,category,file_id,line,column)
         );
     """)
@@ -55,7 +63,10 @@ def _create_database():
             tag TEXT NOT NULL,
             file_id INTEGER,
             count INTEGER NOT NULL,
-            FOREIGN KEY(file_id) REFERENCES file(id),
+            CONSTRAINT fk_file_id
+                FOREIGN KEY(file_id)
+                REFERENCES file(id)
+                ON DELETE CASCADE,
             PRIMARY KEY(tag,file_id)
         );
     """)
@@ -72,8 +83,14 @@ def _create_database():
         CREATE TABLE IF NOT EXISTS "query_run_result" (
             file_id INTEGER,
             query_id INTEGER,
-            FOREIGN KEY(file_id) REFERENCES file(id),
-            FOREIGN KEY(query_id) REFERENCES query_run(id),
+            CONSTRAINT fk_file_id
+                FOREIGN KEY(file_id)
+                REFERENCES file(id)
+                ON DELETE CASCADE,
+            CONSTRAINT fk_query_id
+                FOREIGN KEY(query_id)
+                REFERENCES query_run(id)
+                ON DELETE CASCADE,
             PRIMARY KEY(file_id,query_id)
         );
     """)
@@ -152,12 +169,12 @@ def get_file_name_from_id(file_id):
     """, (file_id,))
     return cursor.fetchone()["name"]
 
-def add_identifier(name,type,category,file_id,line,column,stereotype):
+def add_identifier(name,type,category,file_id,line,column,stereotype, nameChecker, violationCode):
     cursor = connection.cursor()
     cursor.execute("""
-        INSERT INTO identifier (name,type,category,file_id,line,column,stereotype)
-        VALUES (?,?,?,?,?,?,?);
-    """,(name,type,category,file_id,line,column,stereotype))
+        INSERT INTO identifier (name,type,category,file_id,line,column,stereotype, nameChecker, violationCode)
+        VALUES (?,?,?,?,?,?,?,?,?)
+    """,(name,type,category,file_id,line,column,stereotype, nameChecker, violationCode))
 
 
 def add_tag_count(tag,file_id,count):
@@ -188,16 +205,16 @@ def retrieve_files(repo_id):
 def retrieve_identifiers(file_id):
     cursor = connection.cursor()
     cursor.execute("""
-        SELECT name, type, category, file_id, line, column, stereotype
+        SELECT name, type, category, file_id, line, column, stereotype, nameChecker, violationCode
         FROM identifier
-        WHERE file_id = ?;
+        WHERE file_id = ?
     """, (file_id,))
     return cursor.fetchall()
 
 def retrieve_identifiers_from_repo(repo_id):
     cursor = connection.cursor()
     cursor.execute("""
-        SELECT identifier.name, type, category, file_id, line, column, file.name as filename, stereotype
+        SELECT identifier.name, type, category, file_id, line, column, file.name as filename, stereotype, nameChecker, violationCode
         FROM file
             INNER JOIN identifier ON file.id = identifier.file_id 
         WHERE repo_id = ?;
@@ -225,6 +242,28 @@ def retrieve_tags_from_repo(repo_id):
     """, (repo_id,))
     return cursor.fetchall()
 
+def retrieve_queries(file_id):
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT query_run.id, query, query_type, file_id
+        FROM query_run
+            INNER JOIN query_run_result ON query_run.id = query_run_result.query_id
+        WHERE file_id = ?;
+    """, (file_id,))
+    return cursor.fetchall()
+
+def retrieve_queries_from_repo(repo_id):
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT query_run.id, query, query_type, file_id, file.name as filename
+        FROM query_run
+            INNER JOIN query_run_result ON query_run.id = query_run_result.query_id
+            INNER JOIN file ON query_run_result.file_id = file.id
+            INNER JOIN repository ON file.repo_id = repository.id
+        WHERE repository.id = ?
+    """, (repo_id,))
+    return cursor.fetchall()
+
 def create_query_run(query,type):
     cursor = connection.cursor()
     cursor.execute("""
@@ -244,23 +283,29 @@ def add_query_result(file_id,query_id):
 def remove_repo(repo_id):
     cursor = connection.cursor()
 
-    # Delete associated tags
-    cursor.execute("""
-        DELETE FROM tag_count
-        WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
-    """, (repo_id,))
+    # # Delete associated tags
+    # cursor.execute("""
+    #     DELETE FROM tag_count
+    #     WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    # """, (repo_id,))
 
-    # Delete associated identifiers
-    cursor.execute("""
-        DELETE FROM identifier
-        WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
-    """, (repo_id,))
+    # # Delete associated identifiers
+    # cursor.execute("""
+    #     DELETE FROM identifier
+    #     WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    # """, (repo_id,))
 
-    # Delete associated files
-    cursor.execute("""
-        DELETE FROM file
-        WHERE repo_id = ?
-    """, (repo_id,))
+    # # Delete query data
+    # cursor.execute("""
+    #     DELETE FROM identifier
+    #     WHERE file_id IN (SELECT id FROM file WHERE repo_id = ?)
+    # """, (repo_id,))
+
+    # # Delete associated files
+    # cursor.execute("""
+    #     DELETE FROM file
+    #     WHERE repo_id = ?
+    # """, (repo_id,))
 
     # Delete the repository
     cursor.execute("""

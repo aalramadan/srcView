@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = False
 
 from flask import Flask, render_template, request, redirect, send_file
 from flask_socketio import SocketIO
@@ -83,7 +83,7 @@ def process_github_link(github_link):
         socket_io.emit("update",{'message':'Error!'})
         return
 
-    socket_io.emit("update",{'message':'Collecting names...'})
+    socket_io.emit("update",{'message':'Collecting and evaluating names. This could take a while...'})
     status = run_namecollector(repo_name) and add_names_to_database(repo_name)
     if status:
         socket_io.emit("update",{'message':'Collected!'})
@@ -128,6 +128,23 @@ def list_tags_from_repo(repo_id):
     tags = srcml_database.retrieve_tags_from_repo(repo_id)
     return render_template('tags.html', tags=tags,display=srcml_database.get_repo_name_from_id(repo_id))
 
+@app.route('/xpath_run/all',methods=['GET','POST'])
+def xpath_on_all():
+    if request.method == 'GET':
+        return render_template('run_xpath.html')
+    if request.method == 'POST':
+        xpath = request.form['xpath']
+        thread = threading.Thread(target=execute_xpath_on_all,args=(xpath,))
+        thread.start()
+
+        result="Running your XPath!"
+        return render_template('run_xpath.html', result=result)
+
+def execute_xpath_on_all(xpath):
+    run_xpath_on_all(xpath)
+    time.sleep(1)
+    socket_io.emit("finish",{'redirect':'/'})
+
 @app.route('/xpath_run/repo/<repo_id>',methods=['GET', 'POST'])
 def xpath_on_repo(repo_id):
     if request.method == 'GET':
@@ -160,8 +177,26 @@ def xpath_on_file(file_id):
 def execute_xpath_on_file(file_id,xpath):
     run_xpath_on_file(srcml_database.get_repo_id_from_file_id(file_id),file_id,xpath)
     time.sleep(1)
-    socket_io.emit("finish",{'redirect':'/'})
+    socket_io.emit("finish",{'redirect':'/files/'+srcml_database.get_repo_id_from_file_id(file_id)})
 
+
+
+@app.route('/srcql_run/all',methods=['GET','POST'])
+def srcql_on_all():
+    if request.method == 'GET':
+        return render_template('run_srcql.html')
+    if request.method == 'POST':
+        srcql = request.form['srcql']
+        thread = threading.Thread(target=execute_srcql_on_all,args=(srcql,))
+        thread.start()
+
+        result="Running your srcql!"
+        return render_template('run_srcql.html', result=result)
+
+def execute_srcql_on_all(srcql):
+    run_srcql_on_all(srcql)
+    time.sleep(1)
+    socket_io.emit("finish",{'redirect':'/'})
 
 @app.route('/srcql_run/repo/<repo_id>',methods=['GET', 'POST'])
 def srcql_on_repo(repo_id):
@@ -195,7 +230,7 @@ def srcql_on_file(file_id):
 def execute_srcql_on_file(file_id,srcql):
     run_srcql_on_file(srcml_database.get_repo_id_from_file_id(file_id),file_id,srcql)
     time.sleep(1)
-    socket_io.emit("finish",{'redirect':'/'})
+    socket_io.emit("finish",{'redirect':'/files/'+srcml_database.get_repo_id_from_file_id(file_id)})
 
 
 
@@ -228,6 +263,21 @@ def download_srcml_repo(repo_id):
     return send_file("data/"+srcml_database.get_repo_name_from_id(repo_id)+"/code.xml",as_attachment=True,download_name=srcml_database.get_repo_name_from_id(repo_id).split("/")[-1]+".xml")
 
 
+@app.route('/queries/file/<file_id>')
+def list_queries(file_id):
+    queries = srcml_database.retrieve_queries(file_id)
+    return render_template('queries.html', queries=queries,display=srcml_database.get_file_name_from_id(file_id))
+
+@app.route('/queries/repo/<repo_id>')
+def list_queries_from_repo(repo_id):
+    queries = srcml_database.retrieve_queries_from_repo(repo_id)
+    return render_template('queries.html', queries=queries,display=srcml_database.get_repo_name_from_id(repo_id))
+
+
+@app.route('/download/query_result/<query_id>/<file_id>', methods=['GET'])
+def download_query_result(query_id, file_id):
+    repo_name = srcml_database.get_repo_name_from_file_id(file_id)
+    return send_file(f"data/{repo_name}/query_{query_id}_{file_id}.xml",as_attachment=True)
 
 
 if __name__ == '__main__':

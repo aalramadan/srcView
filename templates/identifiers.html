@@ -79,6 +79,8 @@
                 <th>Filename</th>
                 {% endif %}
                 <th>Stereotype</th>
+                <th>NameChecker</th>
+                <th>Violation Code</th>
                 <th>Actions</th>
             </tr>
             {% for identifier in identifiers %}
@@ -92,6 +94,8 @@
                 <td>{{ identifier['filename'] }}</td>
                 {% endif %}
                 <td>{{ identifier['stereotype'] }}</td>
+                <td>{{ identifier['nameChecker'] }}</td>
+                <td>{{ identifier['violationCode'] }}</td>
                 <td></td>
             </tr>
             {% endfor %}

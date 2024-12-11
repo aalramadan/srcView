@@ -101,6 +101,46 @@ def run_namecollector(repo_name):
     else:
         return False
 
+def write_record_to_csv(record,repo_name):
+    file_path = "data/"+repo_name+"/nameCheckerRecord.csv"
+    with open(file_path, mode='w', newline='') as file:
+        file.write(record)  
+def nameCheckerOutput(stdout):
+    if (len(stdout) == 0):
+        result = ("PASS", '')
+    else:
+        errors = ''
+        for line in stdout.splitlines():
+            parts = line.split("violation")
+            description = parts[1].strip()  # Description after 'violation'            
+            error_code = description.split(':')[0].strip()
+            normilized_error_code = error_code.split("v")
+            final_error_code = "v"+normilized_error_code[1] 
+            errors += f"{final_error_code}, "
+        errors = errors[:-2]
+        result = ("FAIL", errors)
+    return result
+
+
+def run_nameChecker(record,repo_name):
+    write_record_to_csv(record,repo_name)
+    file_path = "data/"+repo_name+"/nameCheckerRecord.csv"
+    command = f"cat {file_path} | ./programs/nameChecker"
+    
+    result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    
+    stdout = result.stdout  
+    stderr = result.stderr  
+    
+    # Check if the command was successful
+    if result.returncode == 0:
+        return nameCheckerOutput (stdout)
+    else:
+        print("Command failed!")
+        print(stderr)  # Print the standard error
+        return ("FAIL","unknown_error")  # Indicate failure
+
+
 def add_names_to_database(repo_name):
     with open("data/"+repo_name+"/code_names.csv") as file:
         for line in file.readlines():
@@ -114,7 +154,9 @@ def add_names_to_database(repo_name):
             file = vals[3]
             pos = vals[4]
             stereotype = vals[6]
-            srcml_database.add_identifier(name,type if type != "" else None,category,srcml_database.get_file_id_from_name_and_repo(file,srcml_database.get_repo_id_from_name(repo_name)),pos.split(":")[0],pos.split(":")[1],stereotype if stereotype != "" else None)
+            nameChecker = run_nameChecker(line,repo_name)
+
+            srcml_database.add_identifier(name,type if type != "" else None,category,srcml_database.get_file_id_from_name_and_repo(file,srcml_database.get_repo_id_from_name(repo_name)),pos.split(":")[0],pos.split(":")[1],stereotype if stereotype != "" else None, nameChecker[0], nameChecker[1])
     srcml_database.commit()
     return True
 
