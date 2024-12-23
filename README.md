@@ -16,7 +16,7 @@ flask run
 ```
 
 # Overview
-![alt text](image.png)
+![alt text](static/image.png)
 
 # Team
 - Ali Al-Ramadan
