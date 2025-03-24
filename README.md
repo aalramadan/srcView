@@ -17,8 +17,3 @@ flask run
 
 # Overview
 ![alt text](static/image.png)
-
-# Team
-- Ali Al-Ramadan
-- Syreen Banabilah
-- Joshua Behler
